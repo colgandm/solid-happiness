@@ -20,20 +20,16 @@ customer.records.file.name=customers.txt
 ##Local Deployments
 
 ####Execute the following commands to run the application locally
-mvn clean install, will compile and package the application, creating a jar file in the /targets folder, which we can run.
-```shell script
-mvn clean install
-```
 
-The newly create jar file can be ran with the following command.  
 ```shell script
-java -jar target/takehome-0.0.1-SNAPSHOT.jar
+mvn spring-boot:run -Dspring-boot.run.arguments="file"
 ```
 This will run the application, reading in customer records from a text file customers.txt found at src/main/resources/ and creating an output.txt file.
 
-Alternatively we can pass in a command line arg "s3" retrieve the file from the s3 bucket specified in the application.properties. This too will create an output.txt file.
+Alternatively we can pass in a command line arg "s3" to retrieve the file from the s3 bucket specified in the application.properties. This too will create an output.txt file.
 ```shell script
-java -jar target/takehome-0.0.1-SNAPSHOT.jar s3
+mvn spring-boot:run -Dspring-boot.run.arguments="s3"
+
 ```
 
 
