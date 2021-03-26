@@ -1,5 +1,6 @@
 package com.intercom.takehome.backend;
 
+import com.intercom.takehome.backend.exception.FileRetrievalException;
 import com.intercom.takehome.backend.model.CustomerRecord;
 import com.intercom.takehome.backend.model.Invitation;
 import com.intercom.takehome.backend.services.CustomerRecordRetrieverService;
@@ -13,10 +14,11 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.intercom.takehome.backend.helper.TestUtils.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -41,7 +43,7 @@ public class InvitationManagerTest {
     }
 
     @Test
-    public void shouldCreateInvitationListFromFile() throws FileNotFoundException {
+    public void shouldCreateInvitationListFromFile() {
         List<CustomerRecord> customerRecords = getCustomerRecordList();
         List<Invitation> invitations = getInvitationList();
         when(customerRecordRetrieverService.retrieveCustomerRecordsFromFile(anyString())).thenReturn(customerRecords);
@@ -53,7 +55,7 @@ public class InvitationManagerTest {
     }
 
     @Test
-    public void shouldCreateInvitationListFromS3() throws FileNotFoundException {
+    public void shouldCreateInvitationListFromS3() {
         List<CustomerRecord> customerRecords = getCustomerRecordList();
         List<Invitation> invitations = getInvitationList();
         when(customerRecordRetrieverService.retrieveCustomerRecordsFromS3Bucket(anyString(), anyString())).thenReturn(customerRecords);
@@ -63,5 +65,46 @@ public class InvitationManagerTest {
         verify(invitationGeneratorService, times(1)).createInvitationListFromCustomerRecords(anyList());
         verify(fileWriter, times(1)).writeInvitationsToFile(anyList());
     }
+
+    @Test
+    public void shouldCatchFileRetrievalExceptionS3() {
+        when(customerRecordRetrieverService.retrieveCustomerRecordsFromS3Bucket(anyString(), anyString())).thenThrow(FileRetrievalException.class);
+        unitUnderTest.createInvitationListFromS3();
+        verify(customerRecordRetrieverService, times(1)).retrieveCustomerRecordsFromS3Bucket(anyString(), anyString());
+        verify(invitationGeneratorService, times(0)).createInvitationListFromCustomerRecords(anyList());
+        verify(fileWriter, times(0)).writeInvitationsToFile(anyList());
+    }
+
+    @Test
+    public void shouldCatchFileRetrievalException() {
+        when(customerRecordRetrieverService.retrieveCustomerRecordsFromFile(anyString())).thenThrow(FileRetrievalException.class);
+        unitUnderTest.createInvitationListFromFile();
+        verify(customerRecordRetrieverService, times(1)).retrieveCustomerRecordsFromFile(anyString());
+        verify(invitationGeneratorService, times(0)).createInvitationListFromCustomerRecords(anyList());
+        verify(fileWriter, times(0)).writeInvitationsToFile(anyList());
+    }
+
+    @Test
+    public void shouldReturnNoCustomerRecords() {
+        List<CustomerRecord> customerRecords = new ArrayList<>();
+        when(customerRecordRetrieverService.retrieveCustomerRecordsFromFile(anyString())).thenReturn(customerRecords);
+        unitUnderTest.createInvitationListFromFile();
+        verify(customerRecordRetrieverService, times(1)).retrieveCustomerRecordsFromFile(anyString());
+        verify(invitationGeneratorService, times(0)).createInvitationListFromCustomerRecords(anyList());
+        verify(fileWriter, times(0)).writeInvitationsToFile(anyList());
+    }
+
+    @Test
+    public void shouldReturnNoInvitations() {
+        List<CustomerRecord> customerRecords = getCustomerRecordList();
+        List<Invitation> invitations = new ArrayList<>();
+        when(customerRecordRetrieverService.retrieveCustomerRecordsFromFile(anyString())).thenReturn(customerRecords);
+        when(invitationGeneratorService.createInvitationListFromCustomerRecords(customerRecords)).thenReturn(invitations);
+        unitUnderTest.createInvitationListFromFile();
+        verify(customerRecordRetrieverService, times(1)).retrieveCustomerRecordsFromFile(anyString());
+        verify(invitationGeneratorService, times(1)).createInvitationListFromCustomerRecords(anyList());
+        verify(fileWriter, times(0)).writeInvitationsToFile(anyList());
+    }
+
 
 }

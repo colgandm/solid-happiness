@@ -29,7 +29,11 @@ This will run the application, reading in customer records from a text file cust
 Alternatively we can pass in a command line arg "s3" to retrieve the file from the s3 bucket specified in the application.properties. This too will create an output.txt file.
 ```shell script
 mvn spring-boot:run -Dspring-boot.run.arguments="s3"
-
 ```
 
-
+####Running Unit Tests
+Executing Mvn clean install will run the unit tests located under src/test/java
+```shell script
+mvn clean install
+```
+This will generated Jacoco reports. Navigate to the /target/site/jacoco/com.intercom.takehome/ and open the index.html file in a web browser to view and browse code coverage.

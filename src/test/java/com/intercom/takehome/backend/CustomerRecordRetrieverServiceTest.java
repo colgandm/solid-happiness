@@ -58,6 +58,13 @@ public class CustomerRecordRetrieverServiceTest {
         assertEquals(1, actualCustomerRecordList.size());
     }
 
+    @Test(expected = FileRetrievalException.class)
+    public void shouldThrowFileRetrievalException() throws FileRetrievalException, IOException {
+        when(amazonS3.getObject(S_3_BUCKET, FILE_NAME)).thenReturn(getS3Object());
+        List<CustomerRecord> actualCustomerRecordList = unitUnderTest.retrieveCustomerRecordsFromS3Bucket(null, null);
+        assertEquals(1, actualCustomerRecordList.size());
+    }
+
     private S3Object getS3Object() throws IOException {
         InputStream objectContent = IOUtils.toInputStream("{\"latitude\": \"52.986375\", \"user_id\": 12, \"name\": \"Christina McArdle\", \"longitude\": \"-6.043701\"}", "UTF-8");
         S3Object object = new S3Object();
