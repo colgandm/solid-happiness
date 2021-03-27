@@ -26,6 +26,7 @@ public class InvitationsGeneratorServiceImpl implements InvitationGeneratorServi
     private CustomerRecordRetrieverService customerRecordRetrieverService;
 
     public List<Invitation> createInvitationListFromCustomerRecords(List<CustomerRecord> customerRecordList) {
+        log.info("Creating Invitation List from Customer Records.");
         List<Invitation> invitationList = new ArrayList<>();
         for (CustomerRecord customerRecord : customerRecordList) {
             if (isCustomerWithinInvitationRange(customerRecord)) {

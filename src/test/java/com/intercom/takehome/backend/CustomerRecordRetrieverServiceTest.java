@@ -9,6 +9,7 @@ import com.intercom.takehome.backend.model.CustomerRecord;
 import com.intercom.takehome.backend.services.CustomerRecordRetrieverServiceImpl;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -59,10 +60,43 @@ public class CustomerRecordRetrieverServiceTest {
     }
 
     @Test(expected = FileRetrievalException.class)
-    public void shouldThrowFileRetrievalException() throws FileRetrievalException, IOException {
-        when(amazonS3.getObject(S_3_BUCKET, FILE_NAME)).thenReturn(getS3Object());
+    public void shouldThrowFileRetrievalException() throws FileRetrievalException {
         List<CustomerRecord> actualCustomerRecordList = unitUnderTest.retrieveCustomerRecordsFromS3Bucket(null, null);
         assertEquals(1, actualCustomerRecordList.size());
+    }
+
+    @Test(expected = FileRetrievalException.class)
+    public void shouldThrowExceptionReadingBrokenFile() throws FileRetrievalException {
+        unitUnderTest.retrieveCustomerRecordsFromFile(BROKEN_CUSTOMER_FILE);
+    }
+
+    @Test(expected = FileRetrievalException.class)
+    @Ignore  // Ignored as would need access to S3 Bucket
+    public void shouldThrowExceptionReadingBrokenFileS3() throws FileRetrievalException {
+        unitUnderTest.retrieveCustomerRecordsFromS3Bucket(S_3_BUCKET, BROKEN_CUSTOMER_FILE);
+    }
+
+    @Test
+    public void shouldReturnNoCustomerRecordsFromEmptyFile() throws FileRetrievalException {
+        List<CustomerRecord> actualCustomerRecordList = unitUnderTest.retrieveCustomerRecordsFromFile(EMPTY_CUSTOMER_FILE);
+        assertEquals(0, actualCustomerRecordList.size());
+    }
+
+    @Test
+    @Ignore // Ignored as would need access to S3 Bucket
+    public void shouldReturnNoCustomerRecordsFromEmptyFileS3() throws FileRetrievalException {
+        List<CustomerRecord> actualCustomerRecordList =  unitUnderTest.retrieveCustomerRecordsFromS3Bucket(S_3_BUCKET, EMPTY_CUSTOMER_FILE);
+        assertEquals(0, actualCustomerRecordList.size());
+    }
+
+    @Test(expected = FileRetrievalException.class)
+    public void shouldThrowExceptionWhenFileNotFound() throws FileRetrievalException {
+        unitUnderTest.retrieveCustomerRecordsFromFile(NON_EXISTENT_FILE_NAME);
+    }
+
+    @Test(expected = FileRetrievalException.class)
+    public void shouldThrowExceptionWhenFileNotFoundS3() throws FileRetrievalException {
+        unitUnderTest.retrieveCustomerRecordsFromS3Bucket(S_3_BUCKET, NON_EXISTENT_FILE_NAME);
     }
 
     private S3Object getS3Object() throws IOException {

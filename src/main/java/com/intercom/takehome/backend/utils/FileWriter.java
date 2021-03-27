@@ -16,6 +16,7 @@ public class FileWriter {
     private String outputFileName;
 
     public void writeInvitationsToFile(List<Invitation> invitations) {
+        log.info("Writing {} invitations to file : {} ", invitations.size(), outputFileName);
         try {
             File fileOut = new File(outputFileName);
             FileOutputStream fos = new FileOutputStream(fileOut);

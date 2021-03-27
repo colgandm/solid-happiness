@@ -16,6 +16,9 @@ public class TestUtils {
     public static final int EXPECTED_NUMBER_OF_USERS = 32;
     public static final String S_3_BUCKET = "intercom-take-home-test";
     public static final String FILE_NAME = "/customers.txt";
+    public static final String NON_EXISTENT_FILE_NAME = "/not_there.txt";
+    public static final String BROKEN_CUSTOMER_FILE = "/customers_broken.txt";
+    public static final String EMPTY_CUSTOMER_FILE = "/customers_empty.txt";
     public static final String OUTPUT_FILE_NAME = "output.txt";
     public static final String CUSTOMER_NAME = "BOB";
     public static final double LONGITUDE_GT = -4.5;
